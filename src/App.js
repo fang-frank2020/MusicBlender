@@ -1,23 +1,54 @@
-import logo from './logo.svg';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
+  const [songs, setSongs] = useState([]);
+  function testFetch() {
+    fetch('http://127.0.0.1:5000/api/message', {
+      method: 'GET',
+      credentials: 'include',
+    })
+    .then(data => data.json())
+    .then((res) => {
+      console.log(res);
+
+      const justNames = res.map((song) => {
+        return {
+          name: song["name"],
+          trackLink: song["tracks"]["href"],
+        }
+      });
+
+      setSongs(justNames);
+      console.log(justNames);
+
+
+      // setAccessToken(res.access_token);
+    })
+  }
+
+  // useEffect(() => {
+  //   fetch('http://127.0.0.1:5000/api/login')
+  //   .then(data => data.json())
+  //   .then((res) => {
+  //     console.log(res);
+  //     setAccessToken(res.access_token);
+  //   })
+
+  // }, []);
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <a href="http://127.0.0.1:5000/api/login">Login</a>
+      <button onClick={() => testFetch()}>Test Fetch</button>
+      <h1>Spotify Playlist</h1>
+      {songs.map((song, index) => {
+        return (
+          <div key={index} className="song">
+            <p>{song["name"]}  {song["trackLink"]}</p>
+          </div>
+        );
+      }
+      )}
     </div>
   );
 }
