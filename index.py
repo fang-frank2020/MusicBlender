@@ -78,6 +78,7 @@ def callback():
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
     response = requests.post(SPOTIFY_TOKEN_URL, data=payload, headers=headers)
+    response.raise_for_status()
     token_info = response.json()
     access_token = token_info['access_token']
     session['access_token'] = access_token
@@ -104,6 +105,8 @@ def home():
         return redirect('/api/login/')
 
     userId = session['user_info']['id']
+    print("session data: ", session['user_info'])
+    print("session access token: ", session['access_token'])
     response = requests.get(
         f'https://api.spotify.com/v1/users/{userId}/playlists',
         headers={
@@ -355,6 +358,22 @@ def generateSongs():
     res = {
         "data": json.loads(response.output_text)
     }
+
+    return res
+
+
+@app.route('/api/youtubeFind')
+def youtubeFind():
+    if  not isAuthenticated():
+        print("User not authenticated, redirecting to login")
+        return redirect('/api/login/')
+
+    roomId = request.args.get('id')
+    playlistDiata = requests.get(f'https://youtube.googleapis.com/youtube/v3/playlists?part=snippet&id=PL8_5ipaFVULIXYkTRgKJOSSjJ9ntzDg98&key=[YOUR_API_KEY]')
+
+
+   
+
 
     return res
 

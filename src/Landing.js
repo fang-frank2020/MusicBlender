@@ -125,6 +125,31 @@ function Landing({ setRoom, setLanding }) {
   }
 
 
+  const handleYoutubeSubmit = (e) => {
+    console.log(e);
+    const youtubeURL = e.target[0].value;
+    e.preventDefault();
+    addYoutubePlaylistToRoom(youtubeURL);
+  };
+
+  function addYoutubePlaylistToRoom(youtubeURL) {
+    var id = 
+
+
+    fetch(`http://127.0.0.1:5000/api/youtubeFind?id=${youtubeURL}`, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(data => data.json())
+    .then((res) => {
+      console.log(res);
+      setmyRooms(res);
+    })
+  }
+
+
 
 
   return (
@@ -151,6 +176,10 @@ function Landing({ setRoom, setLanding }) {
         </div>
         <div className="youtube">
         <h1>Youtube Playlist</h1>
+        <form onSubmit={(e) => handleYoutubeSubmit(e)}>
+          <input type="text" placeholder='youtube URL link'></input>
+          <button type="submit">Add Playlist to Room</button>
+        </form>
 
         </div>
         <div className="rooms">
