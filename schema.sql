@@ -1,0 +1,6 @@
+-- schema.sql
+CREATE TABLE IF NOT EXISTS rooms (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    names TEXT NOT NULL,
+    songs TEXT NOT NULL
+);

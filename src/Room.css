@@ -1,0 +1,8 @@
+.roomBottom {
+    display: flex;
+    flex-direction: row;
+}
+
+.existing {
+    margin: 0 5em;
+}
