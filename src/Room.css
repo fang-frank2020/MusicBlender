@@ -4,5 +4,39 @@
 }
 
 .existing {
+    display: flex;
+    flex-direction: column;
     margin: 0 5em;
+}
+
+.Room {
+    padding: 5em;
+}
+
+.generated {
+    display: flex;
+    flex-direction: column;
+    margin: 0 5em;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+button:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.generated-playlistFields {
+    display: flex;
+    flex-direction: row;
+}
+
+.generated-playlistForm {
+    margin-top: 0;
+    margin-right: 2em;
 }

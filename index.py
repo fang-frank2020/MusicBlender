@@ -21,6 +21,7 @@ REDIRECT_URI = os.getenv('REDIRECT_URI')
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize'
 SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token'
+YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
 
 SCOPES = 'playlist-read-private playlist-read-collaborative user-read-private user-read-email playlist-modify-public playlist-modify-private'
 
@@ -78,7 +79,7 @@ def callback():
     headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
     response = requests.post(SPOTIFY_TOKEN_URL, data=payload, headers=headers)
-    response.raise_for_status()
+
     token_info = response.json()
     access_token = token_info['access_token']
     session['access_token'] = access_token
@@ -88,8 +89,14 @@ def callback():
             headers={
                 'Authorization': f'Bearer {session["access_token"]}'
             })
-    userData.raise_for_status()
+
+
     user_info = userData.json()
+
+    if "error" in user_info and userData["error"]["status"] == 401:
+        # Token expired or invalid
+        session.clear()
+        return redirect('/api/login')
 
 
     session['user_info'] = user_info
@@ -105,16 +112,20 @@ def home():
         return redirect('/api/login/')
 
     userId = session['user_info']['id']
-    print("session data: ", session['user_info'])
-    print("session access token: ", session['access_token'])
     response = requests.get(
         f'https://api.spotify.com/v1/users/{userId}/playlists',
         headers={
             'Authorization': f'Bearer {session["access_token"]}'
         }
     )
-    response.raise_for_status()
-    res = response.json()['items']
+    response = response.json()
+
+    if "error" in response and response["error"]["status"] == 401:
+        # Token expired or invalid
+        session.clear()
+        return redirect('/api/login')
+
+    res = response['items']
 
     return res
 
@@ -205,11 +216,14 @@ def addSongs():
             'Authorization': f'Bearer {session["access_token"]}'
         }
     )
-    response.raise_for_status()
     res = response.json()
 
+    if "error" in res and res["error"]["status"] == 401:
+        # Token expired or invalid
+        session.clear()
+        return redirect('/api/login')
+
     allSongsInPlayList = []
-    print(len(res["items"]))
     for song in res['items']:
         track = song['track']
 
@@ -298,8 +312,6 @@ def addUserToRoom():
         (roomId,)
     ).fetchone()
 
-    print("names: ", names)
-
     if (user not in json.loads(names[0])):
         names = json.loads(names[0])
         names.append(user)
@@ -338,22 +350,24 @@ def generateSongs():
         "SELECT songs FROM rooms WHERE id = ?",
         (roomId,)
     ).fetchone()
-    print(songs)
-
-    test = json.dumps(json.loads(songs[0]) if songs else [])
-    print("test: ",test)
 
     response = client.responses.create(
         model="openai/gpt-oss-120b",
         instructions= f"You are a music recommendation assistant. "
-                        f"Given the following list of songs in the format [[title, [artist1, artist2, ...]], ...], generate a list of exactly {numSongs} new songs that are similar in style, mood, or vibe. "
-                        f"Exclude any songs that are already in the list. "
-                        f"The new songs must be in the same format: each item should be a list containing the song title as a string, followed by a list of artist(s). "
-                        f"Return only the list — no extra explanation or formatting.\n\n"
-                        f"The songs are:\n",
+    f"Given the following list of songs in the format [[title, [artist1, artist2, ...]], ...], "
+    f"generate a list of exactly {numSongs} new songs that blend the styles, moods, and vibes of the input songs. "
+    f"Your recommendations should reflect a thoughtful fusion, creating a cohesive mix that naturally integrates the diverse influences found across the input songs. "
+    f"Some items may be only video titles rather than actual songs — in such cases, infer the most likely real song title and correct artist(s) based on the title and common music knowledge. "
+    f"Only recommend real, existing songs that can be found on major streaming platforms. "
+    f"Do not include songs already present in the input list, but you may include other songs by the same artists if they match the style, mood, or vibe. "
+    f"Ensure no single style or artist dominates; the list should feel balanced, varied, and well integrated, capturing the full spectrum of the original playlist's influences. "
+    f"Aim to recommend songs from different genres and artists roughly proportional to their presence and prominence in the input list, blending them into a seamless playlist."
+    f"Return ONLY a JSON array in the exact format [[title, [artist1, artist2, ...]], ...], without any explanations, markdown, or extra formatting. "
+    f"Strings should be double quoted as required by JSON. "
+    f"Place the output directly in the main text response so it appears as plain text.\n\n"
+    f"The songs are:\n",
         input= json.dumps(json.loads(songs[0]) if songs else []),
     )
-    print("response: ", response.output_text)
 
     res = {
         "data": json.loads(response.output_text)
@@ -361,21 +375,175 @@ def generateSongs():
 
     return res
 
-
-@app.route('/api/youtubeFind')
-def youtubeFind():
+@app.route('/api/youtubeURLAdd')
+def youtubeURLAdd():
     if  not isAuthenticated():
         print("User not authenticated, redirecting to login")
         return redirect('/api/login/')
 
-    roomId = request.args.get('id')
-    playlistDiata = requests.get(f'https://youtube.googleapis.com/youtube/v3/playlists?part=snippet&id=PL8_5ipaFVULIXYkTRgKJOSSjJ9ntzDg98&key=[YOUR_API_KEY]')
+    user = session['user_info']['id']
+    id = request.args.get('playlistId')
+
+    connection = get_db()
+    cursor = connection.cursor()
+
+    cursor.execute(
+        "INSERT INTO youtubeLinks (user, playlistId) VALUES (?, ?)",
+        (user, id)
+    )
+
+    connection.commit()
+
+    all = cursor.execute(
+        "SELECT playlistId FROM youtubeLinks WHERE user = ?",
+        (user, )
+    ).fetchall()
+    print(all)
 
 
+    res = {
+        'data': all
+    }
+    return res
+
+@app.route('/api/getYoutube')
+def getYoutube():
+    if  not isAuthenticated():
+        print("User not authenticated, redirecting to login")
+        return redirect('/api/login/')
+
+    user = session['user_info']['id']
+
+    connection = get_db()
+    cursor = connection.cursor()
+
+    connection.commit()
+
+    all = cursor.execute(
+        "SELECT playlistId FROM youtubeLinks WHERE user = ?",
+        (user, )
+    ).fetchall()
+
+
+    res = {
+        'data': all
+    }
+    return res
+
+
+@app.route('/api/youtubeAdd')
+def youtubeAdd():
+    if  not isAuthenticated():
+        print("User not authenticated, redirecting to login")
+        return redirect('/api/login/')
+
+    roomId = request.args.get('roomId')
+    playlistId = request.args.get('playlistId')
+    response = requests.get(f'https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId={playlistId}&key={YOUTUBE_API_KEY}&maxResults=50')
+    response = response.json()
+
+    songs = []
+
+    for item in response['items']:
+        song = []
+        title = item['snippet']['title']
+        song.append(title)
+        song.append([])
+        songs.append(song)
+
+    connection = get_db()
+    cursor = connection.cursor()
+
+    existingSongs = cursor.execute(
+        "SELECT * FROM rooms WHERE id = ?",
+        (roomId,)
+    ).fetchone()
+
+    existing = json.loads(existingSongs[2]) if existingSongs else []
+
+    for song in songs:
+        if song not in existing:
+            existing.append(song)
+    
+    cursor.execute(
+       "UPDATE rooms SET songs = ? WHERE id = ?",
+       (json.dumps(existing), roomId, )
+    )
+    connection.commit()
    
 
 
-    return res
+    return ("", 204)
+
+
+@app.route('/api/exportGeneratedPlaylist', methods=['POST'])
+def exportGeneratedPlaylist():
+    if  not isAuthenticated():
+        print("User not authenticated, redirecting to login")
+        return redirect('/api/login/')
+
+    data = request.get_json()
+    user = session['user_info']['id']
+
+    if not data or 'songs' not in data:
+        return jsonify({"error": "No songs provided"}), 400
+    songs = data['songs']
+    uris = []
+
+    for song in songs:
+        track_name = song[0]
+        artist_names = song[1]
+        print(f"Searching for track: {track_name} by artists: {artist_names}")
+
+        artist_query = " ".join(artist_names)
+
+        query = f"track:{track_name} artist:{artist_query}"
+        response = requests.get(
+            f'https://api.spotify.com/v1/search',
+            headers={
+                'Authorization': f'Bearer {session["access_token"]}'
+            },
+            params={
+                'q': query,
+                'type': 'track',
+                'limit': 1
+            }
+        )
+        response = response.json()
+        if response['tracks']['items']:
+            track = response['tracks']['items'][0]
+            uris.append(track['uri'])
+    
+    print("Exporting generated playlist with URIs:", uris)
+    response = requests.post(
+        f'https://api.spotify.com/v1/users/{user}/playlists',
+        headers={
+            'Authorization': f'Bearer {session["access_token"]}'
+        },
+        json={
+            'name': "Cool Generated Playlist",
+            'description': 'playlist generated by Frank Music Blender Project',
+            'public': False
+        }
+    )
+
+    response = response.json()
+    print("Created playlist:", response)
+    id = response['id']
+
+    res = requests.post(
+        f'https://api.spotify.com/v1/playlists/{id}/tracks',
+        headers= {
+            'Authorization': f'Bearer {session["access_token"]}',
+            'Content-Type': 'application/json'
+        },
+        json={
+            'uris': uris
+        }
+    )
+
+
+    return ("", 204)
 
     
 

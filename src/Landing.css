@@ -1,5 +1,258 @@
+.room-card.drag-over {
+  background: #21a1f3aa;
+  border: 2px dashed #fff;
+  color: #fff;
+}
+.playlist-card[draggable="true"] {
+  cursor: grab;
+  border: 2px dashed #61dafb;
+  background: #232526;
+  transition: background 0.2s, border 0.2s;
+}
+.playlist-card[draggable="true"]:active {
+  cursor: grabbing;
+  background: #61dafb22;
+}
+
+
 .App {
-  text-align: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #232526 0%, #414345 100%);
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+}
+
+.topbar {
+  width: 100%;
+  background: rgba(40,44,52,0.98);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+}
+.topbar > .topbar-left,
+.topbar > .topbar-center,
+.topbar > .topbar-right {
+  flex: none;
+}
+.topbar-content {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 64px;
+}
+.logo {
+  font-size: 1.7rem;
+  color: #61dafb;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+.topbar-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+}
+.login-btn, .create-room-btn {
+  background: linear-gradient(90deg, #61dafb 0%, #21a1f3 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  margin-left: 12px;
+  text-decoration: none;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(33,161,243,0.08);
+}
+.login-btn:hover, .create-room-btn:hover {
+  background: linear-gradient(90deg, #21a1f3 0%, #61dafb 100%);
+  box-shadow: 0 4px 16px rgba(33,161,243,0.13);
+}
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  margin-left: 16px;
+}
+.user-avatar {
+  background: #61dafb;
+  color: #232526;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+.user-id {
+  color: #fff;
+  font-size: 1rem;
+}
+.user-menu {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #232526;
+  color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  padding: 16px 24px;
+  min-width: 220px;
+  z-index: 100;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 36px;
+  margin: 40px 0 0 0;
+  width: 100%;
+}
+.sidebar {
+  background: rgba(255,255,255,0.07);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  padding: 28px 18px;
+  min-width: 220px;
+  max-width: 260px;
+  margin: 0 10px;
+  height: fit-content;
+}
+.sidebar h2 {
+  color: #61dafb;
+  margin-bottom: 18px;
+  font-size: 1.3rem;
+}
+.room-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.room-card {
+  background: rgba(255,255,255,0.13);
+  border-radius: 10px;
+  padding: 14px 10px;
+  cursor: pointer;
+  color: #e0e0e0;
+  transition: box-shadow 0.2s, background 0.2s;
+  border: 2px solid transparent;
+}
+.room-card.selected, .room-card:hover {
+  background: #61dafb22;
+  box-shadow: 0 4px 16px rgba(97,218,251,0.13);
+  border: 2px solid #61dafb;
+}
+.room-members {
+  font-size: 0.95rem;
+  color: #b0eaff;
+  margin-top: 2px;
+}
+
+.add-playlists {
+  background: rgba(255,255,255,0.07);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  padding: 28px 18px;
+  margin: 0 10px;
+  height: fit-content;
+}
+.add-playlists h2 {
+  color: #61dafb;
+  margin-bottom: 18px;
+  font-size: 1.3rem;
+}
+.spotify-section, .youtube-section {
+  margin-bottom: 24px;
+}
+.playlist-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.13);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  color: #e0e0e0;
+}
+.playlist-card button {
+  margin-left: 12px;
+}
+.youtube-section form {
+  display: flex;
+  gap: 8px;
+}
+.youtube-section input[type="text"] {
+  flex: 1;
+}
+
+.room-details {
+  background: rgba(255,255,255,0.07);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  padding: 28px 18px;
+  min-width: 320px;
+  max-width: 400px;
+  margin: 0 10px;
+  height: fit-content;
+}
+.room-details h2 {
+  color: #61dafb;
+  margin-bottom: 18px;
+  font-size: 1.3rem;
+}
+.room-info {
+  margin-bottom: 18px;
+}
+.add-member-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.add-member-form input[type="text"] {
+  flex: 1;
+}
+.room-playlists {
+  margin-top: 12px;
+}
+.room-playlists ul {
+  list-style: disc inside;
+  color: #e0e0e0;
+  margin: 0;
+  padding-left: 16px;
+}
+.room-playlists li {
+  margin-bottom: 6px;
+  font-size: 1rem;
+}
+
+@media (max-width: 1100px) {
+  .main-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  .sidebar, .add-playlists, .room-details {
+    min-width: 260px;
+    max-width: 95vw;
+  }
+  .topbar-content {
+    padding: 0 10px;
+  }
 }
 
 .App-logo {
@@ -38,18 +291,114 @@
 }
 
 
+
 .content {
   display: flex;
   flex-direction: row;
-  justify-content: space-around;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 40px;
 }
 
-.rooms {
+
+.rooms, .playlists, .youtube {
   display: flex;
   flex-direction: column;
+  background: rgba(255,255,255,0.07);
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  padding: 32px 24px;
+  min-width: 320px;
+  max-width: 400px;
+  margin: 0 10px;
 }
 
-.playlists {
+
+.playlists h1, .rooms h1, .youtube h1 {
+  margin-bottom: 18px;
+  font-size: 1.7rem;
+  color: #61dafb;
+  letter-spacing: 1px;
+}
+
+.song, .room {
+  background: rgba(255,255,255,0.13);
+  border-radius: 12px;
+  margin-bottom: 18px;
+  padding: 18px 14px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: box-shadow 0.2s;
+}
+
+.song:hover, .room:hover {
+  box-shadow: 0 6px 24px rgba(97,218,251,0.13);
+}
+
+form {
   display: flex;
-  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+input[type="text"] {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #bbb;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+
+input[type="text"]:focus {
+  border: 1.5px solid #61dafb;
+}
+
+button, .App a {
+  background: linear-gradient(90deg, #61dafb 0%, #21a1f3 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  margin-top: 0;
+  text-decoration: none;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(33,161,243,0.08);
+}
+
+button:hover, .App a:hover {
+  background: linear-gradient(90deg, #21a1f3 0%, #61dafb 100%);
+  box-shadow: 0 4px 16px rgba(33,161,243,0.13);
+}
+
+.App a {
+  margin: 24px 0 0 0;
+  display: inline-block;
+}
+
+.App p {
+  color: #e0e0e0;
+  margin: 10px 0;
+}
+
+
+
+@media (max-width: 1100px) {
+  .content {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+  .rooms, .playlists, .youtube {
+    min-width: 260px;
+    max-width: 95vw;
+  }
+}
+
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2em;
 }

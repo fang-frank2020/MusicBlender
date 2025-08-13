@@ -4,3 +4,11 @@ CREATE TABLE IF NOT EXISTS rooms (
     names TEXT NOT NULL,
     songs TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS youtubeLinks (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user TEXT NOT NULL,
+    playlistId TEXT NOT NULL
+);
+
+
