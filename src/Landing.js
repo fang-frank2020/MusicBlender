@@ -185,7 +185,7 @@ function Landing({ setRoom, setLanding }) {
           </div>
           <div className="topbar-right">
             {!me ? (
-              <a href="/api/login" className="login-btn">Login</a>
+              <a href="api/login" className="login-btn">Login</a>
             ) : (
               <div className="user-info" onClick={handleUserMenu} tabIndex={0} style={{cursor:'pointer'}}>
                 <span className="user-avatar">{me[0]}</span>
@@ -204,10 +204,12 @@ function Landing({ setRoom, setLanding }) {
       <div className="main-content">
         {/* Sidebar: My Rooms (Drop targets) */}
         <div className="sidebar">
-          <div className="room-header">
-            <h2>My Rooms</h2>
-            <button className="create-room-btn" onClick={createRoom}>Create Room</button>
-          </div>
+          {me && 
+            <div className="room-header">
+              <h2>My Rooms</h2>
+              <button className="create-room-btn" onClick={createRoom}>Create Room</button>
+            </div>
+          }
           <div className="room-list">
             {myRooms.length === 0 && <p>No rooms yet.</p>}
             {myRooms.map((room, idx) => (
