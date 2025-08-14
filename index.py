@@ -351,29 +351,33 @@ def generateSongs():
         (roomId,)
     ).fetchone()
 
-    response = client.responses.create(
-        model="openai/gpt-oss-120b",
-        instructions= f"You are a music recommendation assistant. "
-    f"Given the following list of songs in the format [[title, [artist1, artist2, ...]], ...], "
-    f"generate a list of exactly {numSongs} new songs that blend the styles, moods, and vibes of the input songs. "
-    f"Your recommendations should reflect a thoughtful fusion, creating a cohesive mix that naturally integrates the diverse influences found across the input songs. "
-    f"Some items may be only video titles rather than actual songs — in such cases, infer the most likely real song title and correct artist(s) based on the title and common music knowledge. "
-    f"Only recommend real, existing songs that can be found on major streaming platforms. "
-    f"Do not include songs already present in the input list, but you may include other songs by the same artists if they match the style, mood, or vibe. "
-    f"Ensure no single style or artist dominates; the list should feel balanced, varied, and well integrated, capturing the full spectrum of the original playlist's influences. "
-    f"Aim to recommend songs from different genres and artists roughly proportional to their presence and prominence in the input list, blending them into a seamless playlist."
-    f"Return ONLY a JSON array in the exact format [[title, [artist1, artist2, ...]], ...], without any explanations, markdown, or extra formatting. "
-    f"Strings should be double quoted as required by JSON. "
-    f"Place the output directly in the main text response so it appears as plain text.\n\n"
-    f"The songs are:\n",
-        input= json.dumps(json.loads(songs[0]) if songs else []),
+    songs_list = json.loads(songs[0]) if songs and songs[0] else []
+
+    prompt = (
+        f"Given the following list of songs in the format [[title, [artist1, artist2, ...]], ...], "
+        f"generate a list of exactly {numSongs} new songs that blend the styles, moods, and vibes of the input songs. "
+        f"Your recommendations should reflect a thoughtful fusion, creating a cohesive mix that naturally integrates the diverse influences found across the input songs. "
+        f"Some items may be only video titles rather than actual songs — in such cases, infer the most likely real song title and correct artist(s) based on the title and common music knowledge. "
+        f"Only recommend real, existing songs that can be found on major streaming platforms. "
+        f"Do not include songs already present in the input list, but you may include other songs by the same artists if they match the style, mood, or vibe. "
+        f"Ensure no single style or artist dominates; the list should feel balanced, varied, and well integrated, capturing the full spectrum of the original playlist's influences. "
+        f"Aim to recommend songs from different genres and artists roughly proportional to their presence and prominence in the input list, blending them into a seamless playlist."
+        f"Return ONLY a JSON array in the exact format [[title, [artist1, artist2, ...]], ...], without any explanations, markdown, or extra formatting. "
+        f"Strings should be double quoted as required by JSON. "
+        f"Place the output directly in the main text response so it appears as plain text.\n\n"
+        f"The songs are:\n{json.dumps(songs_list)}"
     )
 
-    res = {
-        "data": json.loads(response.output_text)
-    }
+    response = client.chat.completions.create(
+        model="openai/gpt-oss-120b",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=4000
+    )
 
-    return res
+    output_text = response.choices[0].message.content.strip()
+    recommended_songs = json.loads(output_text)
+
+    return {"data": recommended_songs}
 
 @app.route('/api/youtubeURLAdd')
 def youtubeURLAdd():
