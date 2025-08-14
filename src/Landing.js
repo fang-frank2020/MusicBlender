@@ -12,11 +12,9 @@ function Landing({ setRoom, setLanding }) {
   const [memberInputs, setMemberInputs] = useState({}); // roomId -> input value
   const [addMemberLoading, setAddMemberLoading] = useState({}); // roomId -> loading state
 
-  const API_BASE = process.env.REACT_APP_API_ENDPOINT;
-
   // Fetch Spotify playlists
   function fetchPlaylists() {
-    fetch(`${API_BASE}/api/message`, {
+    fetch(`/api/message`, {
       method: 'GET',
       credentials: 'include',
     })
@@ -32,7 +30,7 @@ function Landing({ setRoom, setLanding }) {
         setPlaylists(playlists);
       });
     
-    fetch(`${API_BASE}/api/getYoutube`, {
+    fetch(`/api/getYoutube`, {
       method: 'GET',
       credentials: 'include',
     })
@@ -49,7 +47,7 @@ function Landing({ setRoom, setLanding }) {
 
   // Fetch user info
   function getUserId() {
-    fetch(`${API_BASE}/api/getMe`, {
+    fetch(`/api/getMe`, {
       method: 'GET',
       credentials: 'include',
     })
@@ -61,7 +59,7 @@ function Landing({ setRoom, setLanding }) {
 
   // Fetch rooms
   function fetchRooms() {
-    fetch(`${API_BASE}/api/readRooms`, {
+    fetch(`/api/readRooms`, {
       credentials: 'include',
     })
       .then(data => data.json())
@@ -72,7 +70,7 @@ function Landing({ setRoom, setLanding }) {
 
   // Create a new room
   function createRoom() {
-    fetch(`${API_BASE}/api/room`, {
+    fetch(`/api/room`, {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +84,7 @@ function Landing({ setRoom, setLanding }) {
 
   // Add Spotify playlist to a room
   function addPlaylistToRoom(roomId, trackLink) {
-    fetch(`${API_BASE}/api/addSongs?roomId=${roomId}&trackLink=${trackLink}`, {
+    fetch(`/api/addSongs?roomId=${roomId}&trackLink=${trackLink}`, {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
@@ -102,7 +100,7 @@ function Landing({ setRoom, setLanding }) {
   // Add YouTube playlist to a room
   function addYoutubePlaylistToRoom(roomId, youtubeUrl) {
     if (!roomId || !youtubeUrl) return;
-    fetch(`${API_BASE}/api/youtubeAdd?playlistId=${youtubeUrl}&roomId=${roomId}`, {
+    fetch(`/api/youtubeAdd?playlistId=${youtubeUrl}&roomId=${roomId}`, {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
@@ -119,7 +117,7 @@ function Landing({ setRoom, setLanding }) {
     const user = memberInputs[roomId];
     if (!user) return;
     setAddMemberLoading(l => ({ ...l, [roomId]: true }));
-    fetch(`${API_BASE}/api/addUserToRoom?roomId=${roomId}&user=${encodeURIComponent(user)}`, {
+    fetch(`/api/addUserToRoom?roomId=${roomId}&user=${encodeURIComponent(user)}`, {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
     })
@@ -160,7 +158,7 @@ function Landing({ setRoom, setLanding }) {
       return;
     }
     
-    fetch(`${API_BASE}/api/youtubeURLAdd?playlistId=${playListId}`, {
+    fetch(`/api/youtubeURLAdd?playlistId=${playListId}`, {
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
     })
@@ -187,7 +185,7 @@ function Landing({ setRoom, setLanding }) {
           </div>
           <div className="topbar-right">
             {!me ? (
-              <a href={API_BASE + "/api/login"} className="login-btn">Login</a>
+              <a href="/api/login" className="login-btn">Login</a>
             ) : (
               <div className="user-info" onClick={handleUserMenu} tabIndex={0} style={{cursor:'pointer'}}>
                 <span className="user-avatar">{me[0]}</span>

@@ -5,15 +5,14 @@ function Room({ roomId, setLanding }) {
   const [songs, setSongs] = useState(null);
   const [generatedPlaylist, setGeneratedPlaylist] = useState(null);
   const [generatedPlaylistName, setGeneratedPlaylistName] = useState("");
-  const API_BASE = process.env.REACT_APP_API_ENDPOINT;
 
-  
+
   function backLanding() {
     setLanding(true);
   }
 
   function generatePlayList() {
-    fetch(`${API_BASE}/api/generate?roomId=${roomId}&numSongs=${20}`)
+    fetch(`/api/generate?roomId=${roomId}&numSongs=${20}`)
       .then(data => data.json())
       .then((res) => {
         setGeneratedPlaylist(res.data);
@@ -21,7 +20,7 @@ function Room({ roomId, setLanding }) {
   }
 
   useEffect(() => {
-  fetch(`${API_BASE}/api/getSongs?roomId=${roomId}`)
+  fetch(`/api/getSongs?roomId=${roomId}`)
     .then(res => res.json())
     .then(res => {
       console.log("Fetched songs:", res);
@@ -37,7 +36,7 @@ function Room({ roomId, setLanding }) {
   }, [roomId]);
 
   function createPlaylist() {
-    fetch(`${API_BASE}/api/exportGeneratedPlaylist?name=${generatedPlaylistName}`,
+    fetch(`/api/exportGeneratedPlaylist?name=${generatedPlaylistName}`,
       {
         method: 'POST',
         headers: {
