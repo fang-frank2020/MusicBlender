@@ -283,7 +283,6 @@ function Landing({ setRoom, setLanding }) {
           {/* Spotify Column */}
           <div style={{flex:1, background:'#eafaf1', borderRadius:12, padding:16, minWidth:220}}>
             <div style={{display:'flex', alignItems:'center', marginBottom:8}}>
-              <span style={{color:'#1db954', fontWeight:700, fontSize:'1.5em', marginRight:8}}>🎵</span>
               <b style={{color:'#1db954', fontSize:'1.1em'}}>Spotify</b>
             </div>
             <h3 style={{marginTop:0}}>Spotify Playlists</h3>
@@ -305,7 +304,6 @@ function Landing({ setRoom, setLanding }) {
           {/* YouTube Column */}
           <div style={{flex:1, background:'#fff5f5', borderRadius:12, padding:16, minWidth:220}}>
             <div style={{display:'flex', alignItems:'center', marginBottom:8}}>
-              <span style={{color:'#ff0000', fontWeight:700, fontSize:'1.5em', marginRight:8}}>▶️</span>
               <b style={{color:'#ff0000', fontSize:'1.1em'}}>YouTube</b>
             </div>
             <h3 style={{marginTop:0}}>Youtube Playlist Ids</h3>
